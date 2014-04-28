@@ -1,0 +1,848 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     35759,        839]
+NotebookOptionsPosition[     31986,        715]
+NotebookOutlinePosition[     33020,        745]
+CellTagsIndexPosition[     32977,        742]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["MathMF", "Title",
+ CellChangeTimes->{{3.6074479170467224`*^9, 3.607447925501937*^9}, {
+  3.607448104511052*^9, 3.6074481046826525`*^9}}],
+
+Cell["\<\
+A package for video import and export using Windows Media Foundation.
+Simon Woods
+April 2014\
+\>", "Subtitle",
+ CellChangeTimes->{{3.6074480599261737`*^9, 3.607448144384722*^9}, {
+  3.607448257038062*^9, 3.6074482862101135`*^9}, {3.6076756939008465`*^9, 
+  3.6076756986808467`*^9}, {3.607675833271287*^9, 3.6076758563317485`*^9}}],
+
+Cell[TextData[{
+ "This was developed for ",
+ StyleBox["Mathematica",
+  FontSlant->"Italic"],
+ " users on Windows who do not have Quicktime installed, because the built-in \
+video import is limited to uncompressed AVI in those circumstances. The \
+frame-by-frame export functionality may be useful even for users who ",
+ StyleBox["do",
+  FontWeight->"Bold"],
+ " have Quicktime, as it does not require the entire image list to be created \
+before export."
+}], "Subsubtitle",
+ CellChangeTimes->{{3.6076757188208466`*^9, 3.6076757712408466`*^9}, 
+   3.607675816110944*^9, {3.6076759313832493`*^9, 3.6076761004866314`*^9}, {
+   3.607678305338441*^9, 3.6076783217287693`*^9}, {3.6076785661019773`*^9, 
+   3.6076785969725943`*^9}, {3.6076786540937366`*^9, 
+   3.6076786845643463`*^9}, {3.6076787682460203`*^9, 3.607678768786031*^9}}],
+
+Cell[TextData[{
+ StyleBox["WARNING!",
+  FontColor->RGBColor[1, 0, 0]],
+ "\nThe package communicates with the Media Foundation platform via a \
+LibraryLink DLL. This DLL is loaded into the ",
+ StyleBox["Mathematica",
+  FontSlant->"Italic"],
+ " kernel process, so if the DLL crashes so will the kernel. While I have \
+attempted to make the package handle errors safely, you should be aware that \
+I am not a professional programmer and any sufficiently determined and \
+creative user will be able to make it crash. I accept no responsibility if \
+you lose a three week computation because you found a way to send complex \
+numbers to the media sink writer :-)"
+}], "Subsubtitle",
+ CellChangeTimes->{{3.6076757188208466`*^9, 3.6076757712408466`*^9}, 
+   3.607675816110944*^9, {3.6076759313832493`*^9, 3.6076760992266064`*^9}, {
+   3.6076761375973735`*^9, 3.607676141107444*^9}, {3.6076761907184362`*^9, 
+   3.607676192058463*^9}, {3.607676233179285*^9, 3.6076762340793033`*^9}, {
+   3.6076763440715027`*^9, 3.607676391572453*^9}, {3.6076769197713766`*^9, 
+   3.6076769223796377`*^9}, {3.607676987465145*^9, 3.6076770079501934`*^9}, {
+   3.607677611127198*^9, 3.607677611997207*^9}, {3.6076777141482286`*^9, 
+   3.6076778588996763`*^9}, 3.6076779022103786`*^9, {3.6076779582415*^9, 
+   3.6076779792819204`*^9}, {3.6076780178426914`*^9, 
+   3.6076780676136866`*^9}, {3.607678298908313*^9, 3.6076783033884025`*^9}, {
+   3.607699017385714*^9, 3.607699017942746*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Load the package", "Section",
+ CellChangeTimes->{{3.6076758042608466`*^9, 3.6076758063608465`*^9}}],
+
+Cell["\<\
+When the package loads it will try to find the MathMF.DLL and if not present \
+it will attempt to compile it from source.
+If this step fails you may need to use the pre-built DLL (see the readme).\
+\>", "Text",
+ CellChangeTimes->{{3.6076174643286695`*^9, 3.6076175218927703`*^9}, {
+  3.607679233625327*^9, 3.6076792755261655`*^9}, {3.607679306666788*^9, 
+  3.607679308406823*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Needs", "[", "\"\<MathMF`\>\"", "]"}]], "Input",
+ CellChangeTimes->{{3.6076150950495386`*^9, 3.607615100724863*^9}, {
+  3.6076705704917326`*^9, 3.6076705724919324`*^9}, {3.6076707517718587`*^9, 
+  3.607670751956877*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["\<\"No MathMF.DLL found.\\nMathMF will attempt to build the \
+library from source.\"\>"], "Print",
+ CellChangeTimes->{3.607698444333123*^9}],
+
+Cell[BoxData["\<\"MathMF.DLL successfully created at \
+C:\\\\Users\\\\Simon\\\\AppData\\\\Roaming\\\\Mathematica\\\\SystemFiles\\\\\
+LibraryResources\\\\Windows-x86-64\\\\MathMF.dll\"\>"], "Print",
+ CellChangeTimes->{3.607698446392327*^9}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Importing", "Section",
+ CellChangeTimes->{{3.607412095140934*^9, 3.6074120955309343`*^9}, {
+  3.607428835592741*^9, 3.6074288364127426`*^9}, {3.6074480482261534`*^9, 
+  3.607448048865754*^9}, {3.607448125664689*^9, 3.6074481292682953`*^9}, {
+  3.607448176832779*^9, 3.607448198906818*^9}, {3.6074482441992397`*^9, 
+  3.607448244885641*^9}, {3.6074483321833944`*^9, 3.6074483323705945`*^9}, {
+  3.607680302472842*^9, 3.607680303392861*^9}}],
+
+Cell[TextData[{
+ "The package should be able to import frames from any video file which Media \
+Foundation can read. Details on the container formats and video codecs \
+supported by Media Foundation can be found ",
+ ButtonBox["here",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["http://msdn.microsoft.com/en-us/library/windows/desktop/dd757927(v=\
+vs.85).aspx"], None},
+  ButtonNote->
+   "http://msdn.microsoft.com/en-us/library/windows/desktop/dd757927(v=vs.85).\
+aspx"],
+ ".\n\nImporting consists of two steps:\n1. Call ",
+ StyleBox["MFInitSourceReader", "Code"],
+ " to initialise the source reader.\n2. Call ",
+ StyleBox["MFGrabFrame", "Code"],
+ " to grab frames one at a time."
+}], "Text",
+ CellChangeTimes->{{3.607679328807231*^9, 3.607679329547246*^9}, {
+  3.6076793888084307`*^9, 3.607679403718729*^9}, {3.6076794872503996`*^9, 
+  3.6076795475216055`*^9}, {3.607679592098635*^9, 3.607679630939412*^9}, {
+  3.607679680900411*^9, 3.6076797578219495`*^9}, {3.6076817953726997`*^9, 
+  3.6076817956627054`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["MFInitSourceReader", "Subsection",
+ CellChangeTimes->{{3.6076801960907145`*^9, 3.6076802001307955`*^9}}],
+
+Cell[TextData[{
+ StyleBox["MFInitSourceReader", "Code"],
+ " takes one argument which is the path to the video file. If successful it \
+returns a list:\n{  duration of the video in seconds,  average frame rate in \
+frames per second,\n    frame width in pixels,  frame height in pixels  }"
+}], "Text",
+ CellChangeTimes->{{3.607448156693144*^9, 3.6074481709983687`*^9}, {
+   3.607448228318412*^9, 3.6074482372260275`*^9}, {3.6074482936201267`*^9, 
+   3.6074483523074293`*^9}, {3.607448493300477*^9, 3.6074484963268824`*^9}, 
+   3.6076793258771725`*^9, 3.607679733491463*^9, {3.607679776282319*^9, 
+   3.607679827733348*^9}, {3.6076799553659005`*^9, 3.607680116599125*^9}, {
+   3.607680226481323*^9, 3.6076802660321136`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["MFGrabFrame", "Subsection",
+ CellChangeTimes->{{3.607680235511503*^9, 3.607680238281559*^9}}],
+
+Cell[TextData[{
+ StyleBox["MFGrabFrame", "Code"],
+ " grabs the next frame from the input stream and returns it to ",
+ StyleBox["Mathematica",
+  FontSlant->"Italic"],
+ ".\n\n",
+ StyleBox["MFGrabFrame[\[OpenCurlyDoubleQuote]Byte\[CloseCurlyDoubleQuote]]", 
+  "Code"],
+ " returns the data as an array of \[OpenCurlyDoubleQuote]bytes\
+\[CloseCurlyDoubleQuote] (actually Integers in the range 0 to 255)\n",
+ StyleBox["MFGrabFrame[\[OpenCurlyDoubleQuote]Real\[CloseCurlyDoubleQuote]]", 
+  "Code"],
+ " returns the data as an array of Reals in the range 0 to 1\n",
+ StyleBox["MFGrabFrame[\[OpenCurlyDoubleQuote]ByteImage\
+\[CloseCurlyDoubleQuote]]", "Code"],
+ " returns the data as a byte Image\n",
+ StyleBox["MFGrabFrame[\[OpenCurlyDoubleQuote]RealImage\
+\[CloseCurlyDoubleQuote]]", "Code"],
+ " returns the data as a real Image"
+}], "Text",
+ CellChangeTimes->{{3.6076805282973585`*^9, 3.607680616549124*^9}, {
+  3.607680799602785*^9, 3.6076808004828024`*^9}, {3.6076808477437477`*^9, 
+  3.6076808861445155`*^9}}],
+
+Cell[TextData[{
+ "After the final frame has been read, subsequent calls will return ",
+ StyleBox["EndOfFile", "Code"],
+ ". \n\nNote: To import all the frames from a video file, call ",
+ StyleBox["MFGrabFrame", "Code"],
+ " in a loop until ",
+ StyleBox["EndOfFile", "Code"],
+ " is returned. Do not rely on computing the total number of frames from the \
+frame rate and the duration. The frame rate returned by ",
+ StyleBox["MFInitSourceReader", "Code"],
+ " is an approximate average, and the number of frames calculated by ",
+ StyleBox["duration/framerate", "Code"],
+ " is not always accurate (and frequently is not an integer)"
+}], "Text",
+ CellChangeTimes->{{3.6074485018960924`*^9, 3.6074485530641823`*^9}, {
+   3.607448617242695*^9, 3.6074486917640257`*^9}, {3.607500752240472*^9, 
+   3.6075008889312897`*^9}, {3.607500924197307*^9, 3.607500927284484*^9}, {
+   3.6075012267696133`*^9, 3.607501384833654*^9}, 3.607679740141596*^9, 
+   3.6076806165291233`*^9, {3.607680887064534*^9, 3.6076808953346996`*^9}, {
+   3.607680993256658*^9, 3.607680994266678*^9}, {3.607681061028013*^9, 
+   3.607681087938552*^9}, {3.607681145419701*^9, 3.6076811886805663`*^9}, {
+   3.607681226271318*^9, 3.6076812276713457`*^9}, {3.6076812612220173`*^9, 
+   3.607681413425061*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Example:
+Read frames from the input file and display them using Monitor\
+\>", "Subsection",
+ CellChangeTimes->{{3.607680326113315*^9, 3.6076803290933747`*^9}, {
+  3.6076987853834443`*^9, 3.607698804610544*^9}}],
+
+Cell[TextData[StyleBox["Reminder: change the file path to the location of a \
+movie file on your PC",
+ FontColor->RGBColor[1, 0, 0]]], "Text",
+ CellChangeTimes->{{3.6076815501477957`*^9, 3.6076815855885043`*^9}, {
+  3.607698612163537*^9, 3.6076986565790772`*^9}, {3.6076987538706417`*^9, 
+  3.607698796814098*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"{", 
+   RowBox[{"duration", ",", "framerate", ",", "width", ",", "height"}], "}"}],
+   "=", 
+  RowBox[{
+  "MFInitSourceReader", "[", 
+   "\"\<C:\\\\Users\\\\Public\\\\Videos\\\\Sample Videos\\\\Wildlife.wmv\>\"",
+    "]"}]}]], "Input",
+ CellChangeTimes->{{3.6073428494735847`*^9, 3.6073428562536526`*^9}, {
+   3.6074121005009413`*^9, 3.6074121058269944`*^9}, {3.60741581254827*^9, 
+   3.607415862073103*^9}, {3.6074176847443542`*^9, 3.6074176880265417`*^9}, {
+   3.607428840232748*^9, 3.607428844142753*^9}, {3.6074394758628225`*^9, 
+   3.607439483366435*^9}, {3.6074442774887557`*^9, 3.6074442820595636`*^9}, {
+   3.607616732361743*^9, 3.607616746105367*^9}, 3.607670766657347*^9, 
+   3.6076708037810593`*^9, 3.6076798488737707`*^9, 3.607680310202997*^9, {
+   3.6076804990267735`*^9, 3.6076805036668663`*^9}, {3.607698497232963*^9, 
+   3.6076985033593135`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"30.093`", ",", "29.97000002997`", ",", "1280", ",", "720"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{
+  3.6073428568136578`*^9, 3.6074120341208487`*^9, 3.607412107216996*^9, 
+   3.607412406051529*^9, 3.6074125091186886`*^9, 3.6074125940048532`*^9, {
+   3.6074127010740566`*^9, 3.6074127112140703`*^9}, 3.6074128016342115`*^9, 
+   3.6074132839305196`*^9, 3.607415172503662*^9, 3.607415245267824*^9, 
+   3.607415305854289*^9, 3.6074154992083483`*^9, 3.6074156409524555`*^9, 
+   3.607415814135361*^9, 3.6074158643352327`*^9, {3.60741768938962*^9, 
+   3.6074177049755116`*^9}, 3.6074185728979583`*^9, 3.6074288478527584`*^9, 
+   3.607439485051238*^9, 3.607444559365651*^9, 3.607448430759967*^9, 
+   3.607450967680019*^9, 3.6075009930502453`*^9, {3.607501178684863*^9, 
+   3.6075012031632633`*^9}, 3.6075028209532127`*^9, 3.6075984883942432`*^9, 
+   3.607599386302625*^9, 3.6076159654487963`*^9, 3.6076167470413685`*^9, 
+   3.6076708053742185`*^9, 3.607679849193777*^9, 3.6076803347034874`*^9, {
+   3.607680471546224*^9, 3.60768050435688*^9}, 3.607698506604499*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"While", "[", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"image", "=", 
+      RowBox[{"MFGrabFrame", "[", "\"\<ByteImage\>\"", "]"}]}], ")"}], "=!=", 
+    "EndOfFile"}], "]"}], "~", "Monitor", "~", "image"}]], "Input",
+ CellChangeTimes->{{3.607448382197082*^9, 3.6074484571396136`*^9}, {
+  3.6075009380541*^9, 3.6075009520729017`*^9}, {3.6075027910479603`*^9, 
+  3.6075027942147655`*^9}}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Exporting", "Section",
+ CellChangeTimes->{{3.607330252310952*^9, 3.607330252660987*^9}, {
+   3.607427474906537*^9, 3.607427475526538*^9}, {3.607448696334834*^9, 
+   3.6074486978636365`*^9}, 3.6074493518179817`*^9, {3.607681635839509*^9, 
+   3.607681637479542*^9}}],
+
+Cell[TextData[{
+ "Currently only two export formats are supported:\n.wmv files containing a \
+WMV3 stream\n.mp4 files containing a H264 stream\n\nExporting consists of \
+three steps:\n1. Call ",
+ StyleBox["MFInitSinkWriter", "Code"],
+ " to initialise the sink writer.\n2. Call ",
+ StyleBox["MFSendFrame", "Code"],
+ " to send frames one at a time to the output stream.\n3. Call ",
+ StyleBox["MFFinaliseSink", "Code"],
+ " to finish writing and close the file."
+}], "Text",
+ CellChangeTimes->{{3.607448700968042*^9, 3.6074487933670044`*^9}, {
+  3.607448827484264*^9, 3.6074488824899607`*^9}, {3.6074489271996393`*^9, 
+  3.607449124524386*^9}, {3.6074491949429097`*^9, 3.607449293191882*^9}, {
+  3.607499429098792*^9, 3.6074996722476997`*^9}, {3.607499705187584*^9, 
+  3.6074997390115185`*^9}, {3.607503367886692*^9, 3.607503368682294*^9}, {
+  3.6076816730002527`*^9, 3.6076818210132127`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["MFInitSinkWriter", "Subsection",
+ CellChangeTimes->{{3.6076818223532395`*^9, 3.607681832543443*^9}}],
+
+Cell[TextData[{
+ StyleBox["MFInitSinkWriter[filename, width, height, options]", "Code"],
+ " opens the named file for writing video frames of dimensions \
+width\[Times]height.\n\nThe available options are ",
+ StyleBox["\[OpenCurlyDoubleQuote]FrameRate\[CloseCurlyDoubleQuote]", "Code"],
+ ", ",
+ StyleBox["\[OpenCurlyDoubleQuote]CompressionRatio\[CloseCurlyDoubleQuote]", 
+  "Code"],
+ " and ",
+ StyleBox["\[OpenCurlyDoubleQuote]BitRate\[CloseCurlyDoubleQuote]", "Code"],
+ ":\n",
+ StyleBox["\[OpenCurlyDoubleQuote]FrameRate\[CloseCurlyDoubleQuote]", "Code"],
+ " is in frames per second and defaults to 29.97.\n",
+ StyleBox["\[OpenCurlyDoubleQuote]CompressionRatio\[CloseCurlyDoubleQuote]", 
+  "Code"],
+ " is defined as the bitrate of the uncompressed RGB24 stream divided by the \
+bitrate of the compressed stream. It defaults to 100 which should usually \
+give good quality video. Smaller compression ratio values will lead to larger \
+files of higher quality.\n",
+ StyleBox["\[OpenCurlyDoubleQuote]BitRate\[CloseCurlyDoubleQuote]", "Code"],
+ " is in kb/s and defaults to ",
+ StyleBox["Automatic", "Code"],
+ ", meaning the bit rate will be computed from the compression ratio. If a \
+number is supplied as the bit rate the ",
+ StyleBox["\[OpenCurlyDoubleQuote]CompressionRatio\[CloseCurlyDoubleQuote]", 
+  "Code"],
+ " is ignored.\n\nIn general it is recommended to use ",
+ StyleBox["\[OpenCurlyDoubleQuote]CompressionRatio\[CloseCurlyDoubleQuote]", 
+  "Code"],
+ " to determine the quality of the output video, unless a specific bit rate \
+is required."
+}], "Text",
+ CellChangeTimes->{{3.6076819009048104`*^9, 3.607681924315279*^9}, {
+  3.6076819568959303`*^9, 3.6076823795743837`*^9}, {3.6076824863765197`*^9, 
+  3.607682611649025*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["MFSendFrame", "Subsection",
+ CellChangeTimes->{{3.6076818264133205`*^9, 3.607681832543443*^9}}],
+
+Cell[TextData[{
+ StyleBox["MFSendFrame[data]", "Code"],
+ " sends ",
+ StyleBox["data", "Code"],
+ " to the output stream. The data may be a numerical array or Image of the \
+correct height and width, and can be in real or byte format. The pixel data \
+may be single channel (greyscale) or three channel (RGB)."
+}], "Text",
+ CellChangeTimes->{{3.6076826430196524`*^9, 3.607682711481022*^9}, {
+  3.6076834777641153`*^9, 3.607683534033553*^9}, {3.607683575393139*^9, 
+  3.607683614502748*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["MFFinaliseSink", "Subsection",
+ CellChangeTimes->{{3.607681829243377*^9, 3.607681832543443*^9}}],
+
+Cell[TextData[{
+ StyleBox["MFFinaliseSink[]", "Code"],
+ " finalises the writing process and closes the output file."
+}], "Text",
+ CellChangeTimes->{{3.607683636202531*^9, 3.607683650772385*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Example:
+Write 100 frames to a WMV file with a frame rate of 25 fps\
+\>", "Subsection",
+ CellChangeTimes->{{3.6076818813044186`*^9, 3.6076818881645555`*^9}, {
+  3.607698818606344*^9, 3.6076988195513983`*^9}}],
+
+Cell[TextData[StyleBox["Reminder: change the file path to somewhere suitable \
+to create a movie file on your PC",
+ FontColor->RGBColor[1, 0, 0]]], "Text",
+ CellChangeTimes->{{3.60768417689133*^9, 3.607684194751687*^9}, {
+  3.6076986662386293`*^9, 3.607698684818692*^9}, {3.6076987346705437`*^9, 
+  3.607698748294323*^9}, {3.607698816863245*^9, 3.607698817690292*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"w", ",", "h"}], "}"}], "=", 
+   RowBox[{"{", 
+    RowBox[{"300", ",", "200"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"frame", "[", "i_", "]"}], ":=", 
+  RowBox[{"Rasterize", "[", 
+   RowBox[{"i", ",", "\"\<Data\>\"", ",", 
+    RowBox[{"ImageSize", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{"w", ",", "h"}], "}"}]}]}], "]"}]}]}], "Input",
+ CellChangeTimes->{{3.607330589344652*^9, 3.6073306263993573`*^9}, {
+   3.6074189475109825`*^9, 3.6074189511909876`*^9}, {3.6074190861511765`*^9, 
+   3.6074190907211833`*^9}, {3.607419136121247*^9, 3.6074191673837905`*^9}, {
+   3.607420529692452*^9, 3.607420543182471*^9}, 3.6074240635385094`*^9, {
+   3.6075029212457886`*^9, 3.607502928749402*^9}}],
+
+Cell[BoxData[
+ RowBox[{"MFInitSinkWriter", "[", 
+  RowBox[{
+  "\"\<C:\\\\Users\\\\Simon\\\\Desktop\\\\test.wmv\>\"", ",", "w", ",", "h", 
+   ",", 
+   RowBox[{"\"\<FrameRate\>\"", "\[Rule]", "25"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.6073302607827992`*^9, 3.6073303022239428`*^9}, {
+   3.607330602116929*^9, 3.607330603264044*^9}, {3.6074187859282565`*^9, 
+   3.607418842758336*^9}, {3.607419216433859*^9, 3.60741921689386*^9}, 
+   3.6074204938099017`*^9, 3.607420537742463*^9, {3.607423594431678*^9, 
+   3.607423618697066*^9}, {3.607424066469677*^9, 3.6074240666626883`*^9}, {
+   3.6074242345892925`*^9, 3.6074242369994307`*^9}, {3.6074244168837194`*^9, 
+   3.6074244202029095`*^9}, {3.607427489706558*^9, 3.6074275065365815`*^9}, {
+   3.607428128446751*^9, 3.6074281357167616`*^9}, {3.6074301987762003`*^9, 
+   3.6074301990862007`*^9}, {3.6074394099731092`*^9, 3.607439415230318*^9}, 
+   3.6074397676777315`*^9, 3.60743981221581*^9, 3.607444991487418*^9, {
+   3.6074491369888077`*^9, 3.6074491433536186`*^9}, {3.607499413075876*^9, 
+   3.6074994166310797`*^9}, {3.607502901464954*^9, 3.607502901589754*^9}, {
+   3.6075029372514167`*^9, 3.6075029420406256`*^9}, {3.6075032558248944`*^9, 
+   3.6075033274202213`*^9}, {3.607670823485029*^9, 3.607670824374118*^9}, {
+   3.607683978657365*^9, 3.6076839788473687`*^9}, {3.6076841337004657`*^9, 
+   3.6076841399405904`*^9}, {3.607684490077593*^9, 3.6076844954477005`*^9}, {
+   3.607698519843256*^9, 3.6076985493219423`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Do", "[", 
+   RowBox[{
+    RowBox[{"MFSendFrame", "@", 
+     RowBox[{"frame", "[", "i", "]"}]}], ",", 
+    RowBox[{"{", 
+     RowBox[{"i", ",", "1", ",", "100"}], "}"}]}], "]"}], "~", "Monitor", "~",
+   "i"}]], "Input",
+ CellChangeTimes->{{3.6073302607827992`*^9, 3.6073303022239428`*^9}, {
+   3.607330602116929*^9, 3.607330603264044*^9}, {3.6074187859282565`*^9, 
+   3.607418842758336*^9}, {3.607419216433859*^9, 3.60741921689386*^9}, 
+   3.6074204938099017`*^9, 3.607420537742463*^9, {3.607423594431678*^9, 
+   3.607423618697066*^9}, {3.607424066469677*^9, 3.6074240666626883`*^9}, {
+   3.6074242345892925`*^9, 3.6074242369994307`*^9}, {3.6074244168837194`*^9, 
+   3.6074244202029095`*^9}, {3.607427489706558*^9, 3.6074275065365815`*^9}, {
+   3.607428128446751*^9, 3.6074281357167616`*^9}, {3.6074301987762003`*^9, 
+   3.6074301990862007`*^9}, {3.6074394099731092`*^9, 3.607439415230318*^9}, 
+   3.6074397676777315`*^9, 3.60743981221581*^9, 3.607444991487418*^9, {
+   3.6074491369888077`*^9, 3.6074491433536186`*^9}, {3.607499413075876*^9, 
+   3.6074994166310797`*^9}, {3.607502901464954*^9, 3.607502901589754*^9}, {
+   3.6075029372514167`*^9, 3.6075029420406256`*^9}, {3.6075032558248944`*^9, 
+   3.6075033274202213`*^9}, {3.607670823485029*^9, 3.607670824374118*^9}, {
+   3.607683978657365*^9, 3.6076839788473687`*^9}, {3.6076841337004657`*^9, 
+   3.607684139290578*^9}}],
+
+Cell[BoxData[
+ RowBox[{"MFFinaliseSink", "[", "]"}]], "Input",
+ CellChangeTimes->{{3.6073302607827992`*^9, 3.6073303022239428`*^9}, {
+   3.607330602116929*^9, 3.607330603264044*^9}, {3.6074187859282565`*^9, 
+   3.607418842758336*^9}, {3.607419216433859*^9, 3.60741921689386*^9}, 
+   3.6074204938099017`*^9, 3.607420537742463*^9, {3.607423594431678*^9, 
+   3.607423618697066*^9}, {3.607424066469677*^9, 3.6074240666626883`*^9}, {
+   3.6074242345892925`*^9, 3.6074242369994307`*^9}, {3.6074244168837194`*^9, 
+   3.6074244202029095`*^9}, {3.607427489706558*^9, 3.6074275065365815`*^9}, {
+   3.607428128446751*^9, 3.6074281357167616`*^9}, {3.6074301987762003`*^9, 
+   3.6074301990862007`*^9}, {3.6074394099731092`*^9, 3.607439415230318*^9}, 
+   3.6074397676777315`*^9, 3.60743981221581*^9, 3.607444991487418*^9, {
+   3.6074491369888077`*^9, 3.6074491433536186`*^9}, {3.607499413075876*^9, 
+   3.6074994166310797`*^9}, {3.607502901464954*^9, 3.607502901589754*^9}, {
+   3.6075029372514167`*^9, 3.6075029420406256`*^9}, {3.6075032558248944`*^9, 
+   3.6075033274202213`*^9}, {3.607670823485029*^9, 3.607670824374118*^9}, {
+   3.607683978657365*^9, 3.6076839788473687`*^9}, {3.6076841337004657`*^9, 
+   3.607684134740486*^9}}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Filtering", "Section",
+ CellChangeTimes->{{3.6073302443621573`*^9, 3.6073302449222136`*^9}, {
+  3.6074291064031205`*^9, 3.607429108573124*^9}, {3.607449354610387*^9, 
+  3.6074493562483892`*^9}, {3.6076842329924517`*^9, 3.607684233272457*^9}}],
+
+Cell[TextData[{
+ "MathMF can have an input stream and an output stream open at the same time, \
+so it is possible to use ",
+ StyleBox["Mathematica",
+  FontSlant->"Italic"],
+ " as a video filter, just repeatedly read a frame from the input stream, \
+process it, and send it to the output stream.\n\nExample - read frames from \
+the WMV file we just created, process them with a GradientFilter, and write \
+the results to an MP4 output file, changing the frame rate to 10 fps:"
+}], "Text",
+ CellChangeTimes->{{3.6074291211631413`*^9, 3.6074291298631535`*^9}, {
+  3.607449360975198*^9, 3.6074494257621117`*^9}, {3.607450191719056*^9, 
+  3.6074502302511234`*^9}, {3.6074503467677283`*^9, 3.6074503548641424`*^9}, {
+  3.6074511260878963`*^9, 3.607451167771169*^9}, {3.607502536458313*^9, 
+  3.607502549468736*^9}, {3.6075030798145866`*^9, 3.6075030826693916`*^9}, {
+  3.607503133926281*^9, 3.6075031348154826`*^9}, {3.6075032462776775`*^9, 
+  3.6075032466052785`*^9}, {3.607684281503422*^9, 3.607684320464201*^9}, {
+  3.607684391765627*^9, 3.607684392035632*^9}, {3.6076844530668526`*^9, 
+  3.607684454256877*^9}, {3.6076845054379005`*^9, 3.6076845988797693`*^9}, {
+  3.607684635170495*^9, 3.607684640590603*^9}, {3.6076846852514963`*^9, 
+  3.607684721882229*^9}, {3.6076848078039474`*^9, 3.6076848209542103`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Prepare source and sink", "Subsection",
+ CellChangeTimes->{{3.607329081380389*^9, 3.607329084157389*^9}, {
+  3.607429224663286*^9, 3.60742922749329*^9}}],
+
+Cell[TextData[StyleBox["Reminder: change the file paths!",
+ FontColor->RGBColor[1, 0, 0]]], "Text",
+ CellChangeTimes->{{3.607698691387068*^9, 3.607698727625141*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"{", 
+   RowBox[{
+   "duration", ",", " ", "framerate", ",", "width", ",", " ", "height"}], 
+   "}"}], "=", "\[IndentingNewLine]", 
+  RowBox[{
+  "MFInitSourceReader", "[", 
+   "\"\<C:\\\\Users\\\\Simon\\\\Desktop\\\\test.wmv\>\"", "]"}]}]], "Input",
+ CellChangeTimes->{{3.60744941340689*^9, 3.607449462484576*^9}, {
+   3.607670838721553*^9, 3.6076708395916395`*^9}, 3.607684498517762*^9, {
+   3.607698527987722*^9, 3.6076985284117465`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"4.`", ",", "25.`", ",", "300", ",", "200"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.6074293601434755`*^9, 3.6074296426838713`*^9, 3.607439549728952*^9, 
+   3.6074396050298486`*^9, {3.6074494305981197`*^9, 3.607449462858977*^9}, 
+   3.607449699823393*^9, 3.607449873872899*^9, 3.607449917708976*^9, {
+   3.607449996005513*^9, 3.607450013782345*^9}, 3.607450057899222*^9, 
+   3.6074501085681114`*^9, 3.6074501697514186`*^9, 3.6074510430281515`*^9, 
+   3.607502471957402*^9, 3.6075025953640165`*^9, 3.607503111763443*^9, 
+   3.6075031849695706`*^9, 3.6076160378953233`*^9, 3.6076167794738255`*^9, 
+   3.6076708424979305`*^9, 3.6076848451946955`*^9, 3.6076988802698717`*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"MFInitSinkWriter", "[", 
+  RowBox[{
+  "\"\<C:\\\\Users\\\\Simon\\\\Desktop\\\\filtered.mp4\>\"", ",", "width", 
+   ",", "height", ",", 
+   RowBox[{"\"\<FrameRate\>\"", "\[Rule]", "10"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.607429344913454*^9, 3.6074293547834682`*^9}, {
+   3.6074395210405016`*^9, 3.6074395267969117`*^9}, 3.6074397735121417`*^9, {
+   3.607449466992984*^9, 3.607449480502608*^9}, 3.6074501616550045`*^9, 
+   3.6074503692005672`*^9, {3.607451057754577*^9, 3.607451058799779*^9}, {
+   3.6075023872336535`*^9, 3.607502388622056*^9}, 3.6075025942720146`*^9, {
+   3.6075031093610387`*^9, 3.6075031379042883`*^9}, {3.607503183347168*^9, 
+   3.6075031836903687`*^9}, 3.607503242658471*^9, {3.6076708445111313`*^9, 
+   3.607670845400221*^9}, {3.607684465157095*^9, 3.6076844655171022`*^9}, {
+   3.6076846651110935`*^9, 3.607684667391139*^9}, {3.6076848302143955`*^9, 
+   3.607684830324398*^9}, {3.60769853092389*^9, 3.6076985314919224`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Run the filter", "Subsection",
+ CellChangeTimes->{{3.6073287795773892`*^9, 3.607328781671389*^9}, {
+  3.607429387363514*^9, 3.6074293921535206`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"While", "[", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{"image", "=", 
+       RowBox[{"MFGrabFrame", "[", "\"\<RealImage\>\"", "]"}]}], ")"}], "=!=",
+      "EndOfFile"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"MFSendFrame", " ", "@", 
+     RowBox[{"GradientFilter", "[", 
+      RowBox[{"image", ",", "2"}], "]"}]}]}], "\[IndentingNewLine]", "]"}], 
+  "~", "Monitor", "~", "image"}]], "Input",
+ CellChangeTimes->{{3.6075024308669305`*^9, 3.6075024651089907`*^9}, {
+  3.607502584553198*^9, 3.607502588812005*^9}, {3.6075026223024635`*^9, 
+  3.607502638807293*^9}, {3.6075031757031546`*^9, 3.607503207059209*^9}}],
+
+Cell[BoxData[
+ RowBox[{"MFFinaliseSink", "[", "]"}]], "Input"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Notes on the code", "Section",
+ CellChangeTimes->{{3.607678149005315*^9, 3.6076781644856243`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ StyleBox["Mathematica",
+  FontSlant->"Italic"],
+ " side"
+}], "Subsection",
+ CellChangeTimes->{{3.607685568709165*^9, 3.6076855748192873`*^9}}],
+
+Cell["\<\
+Hopefully there is not much to apologise for in the .m package. The various \
+functions do not do much except provide an interface to the LibraryLink \
+functions with a little bit of error handling.\
+\>", "Text",
+ CellChangeTimes->{{3.6076855975897427`*^9, 3.607685604169874*^9}, {
+   3.60768564846076*^9, 3.607685759882989*^9}, {3.6076858085239615`*^9, 
+   3.607685821984231*^9}, 3.6076860407286053`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["C side", "Subsection",
+ CellChangeTimes->{{3.6076855805594025`*^9, 3.60768558594951*^9}}],
+
+Cell["\<\
+First, the excuses. This was my first attempt at C++ and COM programming, and \
+LibraryLink too. So if the source code looks a bit dodgy, that\
+\[CloseCurlyQuote]s because it is! I basically fumbled my way through until I \
+got something working, so if you\[CloseCurlyQuote]re a real C/C++ programmer \
+and the code made your eyes bleed, please please take it apart and put it \
+back together properly...
+\
+\>", "Text",
+ CellChangeTimes->{{3.6076860825794425`*^9, 3.6076860870795326`*^9}, {
+   3.6076861319804306`*^9, 3.607686206161914*^9}, {3.607686241032612*^9, 
+   3.6076863111440134`*^9}, {3.607686369005171*^9, 3.607686392315637*^9}, {
+   3.6076864408766084`*^9, 3.6076864423866386`*^9}, {3.6076868308444076`*^9, 
+   3.607686831704425*^9}, {3.60768687747534*^9, 3.6076868932256556`*^9}, {
+   3.607688669057848*^9, 3.6076888250809684`*^9}, 3.6076890071946106`*^9, {
+   3.6076892183388333`*^9, 3.6076894002924724`*^9}, {3.607689446373394*^9, 
+   3.607689508504637*^9}, {3.6076895397152605`*^9, 3.607689539785262*^9}, {
+   3.607689597426415*^9, 3.6076896172868123`*^9}, {3.6076896611876903`*^9, 
+   3.6076898263209925`*^9}, {3.607690416492796*^9, 3.6076904367132006`*^9}}],
+
+Cell["\<\
+In writing the code I wanted to keep the LibraryLink side of things separate \
+from the Media Foundation parts. This made it much easier to debug the MF \
+bits in a console application (I couldn't figure out how to get the debugger \
+working with the DLL). So the MF code is contained within two classes, \
+VidReader and VidWriter, and the LL stuff is all inside the exported DLL \
+functions. At startup the library creates a global instance of VidReader and \
+of VidWriter, the LL functions then call those objects\[CloseCurlyQuote] \
+methods to access MF. In principle one could have multiple readers and \
+writers but I\[CloseCurlyQuote]m not sure there\[CloseCurlyQuote]s really \
+much need.
+
+The code was developed in Visual Studio Express 2012, with the source neatly \
+partitioned into separate files. For the final package I just crudely mashed \
+those files into one, no doubt breaking all the rules and conventions about \
+how to structure a C++ file.\
+\>", "Text",
+ CellChangeTimes->{{3.6076860825794425`*^9, 3.6076860870795326`*^9}, {
+   3.6076861319804306`*^9, 3.607686206161914*^9}, {3.607686241032612*^9, 
+   3.6076863111440134`*^9}, {3.607686369005171*^9, 3.607686392315637*^9}, {
+   3.6076864408766084`*^9, 3.6076864423866386`*^9}, {3.6076868308444076`*^9, 
+   3.607686831704425*^9}, {3.60768687747534*^9, 3.6076868932256556`*^9}, {
+   3.607688669057848*^9, 3.6076888250809684`*^9}, 3.6076890071946106`*^9, {
+   3.6076892183388333`*^9, 3.6076894002924724`*^9}, {3.607689446373394*^9, 
+   3.607689508504637*^9}, {3.6076895397152605`*^9, 3.607689539785262*^9}, {
+   3.607689597426415*^9, 3.6076896172868123`*^9}, {3.6076896611876903`*^9, 
+   3.6076898486414394`*^9}, {3.6076898814120946`*^9, 3.607689993224331*^9}, {
+   3.6076900341151485`*^9, 3.607690074825963*^9}, {3.6076901214068947`*^9, 
+   3.607690302940525*^9}, {3.6076903364111943`*^9, 3.6076903739619455`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Bugs & contributions", "Subsection",
+ CellChangeTimes->{{3.607685992217635*^9, 3.6076859928776484`*^9}, {
+  3.6076862296423836`*^9, 3.607686234222475*^9}}],
+
+Cell[TextData[{
+ "Feel free to contact me at mathmf@siwoods.co.uk if you are having any \
+problems, in particular anything that crashes ",
+ StyleBox["Mathematica",
+  FontSlant->"Italic"],
+ ".\n\nEven better, fix it yourself and let me know how :-)\n\nYou can \
+contribute through GitHub or just send an email."
+}], "Text",
+ CellChangeTimes->{{3.6076869711872144`*^9, 3.6076870457687063`*^9}, {
+  3.607687094609683*^9, 3.607687100869808*^9}, {3.6076884346631603`*^9, 
+  3.6076886322271113`*^9}, {3.6076888902422714`*^9, 3.6076889403332734`*^9}, {
+  3.6076891691978507`*^9, 3.607689197568418*^9}, {3.607690510784682*^9, 
+  3.6076905529155245`*^9}, {3.6076905882562313`*^9, 3.6076905887762413`*^9}}]
+}, Open  ]]
+}, Closed]]
+}, Open  ]]
+},
+WindowSize->{899, 750},
+WindowMargins->{{Automatic, 115}, {Automatic, 58}},
+ShowSelection->True,
+FrontEndVersion->"9.0 for Microsoft Windows (64-bit) (January 25, 2013)",
+StyleDefinitions->Notebook[{
+   Cell[
+    StyleData[StyleDefinitions -> "Default.nb"]], 
+   Cell[
+    StyleData["Text"], FontFamily -> "Cambria", FontSize -> 14, FontWeight -> 
+    "Plain", FontSlant -> "Plain", 
+    FontVariations -> {"StrikeThrough" -> False, "Underline" -> False}, 
+    FontColor -> GrayLevel[0]], 
+   Cell[
+    StyleData["Code"], FontFamily -> "Courier New", FontSize -> 14, 
+    FontWeight -> "Bold", FontSlant -> "Plain", 
+    FontVariations -> {"StrikeThrough" -> False, "Underline" -> False}, 
+    Background -> None]}, Visible -> False, FrontEndVersion -> 
+  "9.0 for Microsoft Windows (64-bit) (January 25, 2013)", StyleDefinitions -> 
+  "PrivateStylesheetFormatting.nb"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 142, 2, 101, "Title"],
+Cell[724, 26, 340, 7, 126, "Subtitle"],
+Cell[1067, 35, 826, 16, 81, "Subsubtitle"],
+Cell[1896, 53, 1459, 24, 153, "Subsubtitle"],
+Cell[CellGroupData[{
+Cell[3380, 81, 105, 1, 86, "Section"],
+Cell[3488, 84, 390, 7, 49, "Text"],
+Cell[CellGroupData[{
+Cell[3903, 95, 244, 4, 31, "Input"],
+Cell[CellGroupData[{
+Cell[4172, 103, 154, 2, 43, "Print"],
+Cell[4329, 107, 239, 3, 43, "Print"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4629, 117, 445, 6, 86, "Section"],
+Cell[5077, 125, 1019, 22, 127, "Text"],
+Cell[CellGroupData[{
+Cell[6121, 151, 110, 1, 49, "Subsection"],
+Cell[6234, 154, 722, 11, 69, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6993, 170, 99, 1, 49, "Subsection"],
+Cell[7095, 173, 1005, 22, 130, "Text"],
+Cell[8103, 197, 1260, 22, 128, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9400, 224, 220, 5, 79, "Subsection"],
+Cell[9623, 231, 314, 5, 30, "Text"],
+Cell[CellGroupData[{
+Cell[9962, 240, 897, 17, 52, "Input"],
+Cell[10862, 259, 1100, 17, 31, "Output"]
+}, Open  ]],
+Cell[11977, 279, 423, 10, 31, "Input"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12449, 295, 270, 4, 86, "Section"],
+Cell[12722, 301, 889, 16, 166, "Text"],
+Cell[CellGroupData[{
+Cell[13636, 321, 106, 1, 49, "Subsection"],
+Cell[13745, 324, 1734, 34, 265, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[15516, 363, 101, 1, 49, "Subsection"],
+Cell[15620, 366, 488, 10, 50, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16145, 381, 102, 1, 49, "Subsection"],
+Cell[16250, 384, 194, 4, 31, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16481, 393, 218, 5, 79, "Subsection"],
+Cell[16702, 400, 368, 5, 30, "Text"],
+Cell[17073, 407, 778, 18, 52, "Input"],
+Cell[17854, 427, 1474, 22, 31, "Input"],
+Cell[19331, 451, 1410, 24, 31, "Input"],
+Cell[20744, 477, 1218, 17, 31, "Input"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[22011, 500, 248, 3, 86, "Section"],
+Cell[22262, 505, 1309, 20, 106, "Text"],
+Cell[CellGroupData[{
+Cell[23596, 529, 159, 2, 49, "Subsection"],
+Cell[23758, 533, 165, 2, 30, "Text"],
+Cell[CellGroupData[{
+Cell[23948, 539, 474, 11, 52, "Input"],
+Cell[24425, 552, 713, 11, 31, "Output"]
+}, Open  ]],
+Cell[25153, 566, 978, 15, 52, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[26168, 586, 155, 2, 49, "Subsection"],
+Cell[26326, 590, 687, 15, 92, "Input"],
+Cell[27016, 607, 62, 1, 31, "Input"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[27127, 614, 104, 1, 86, "Section"],
+Cell[CellGroupData[{
+Cell[27256, 619, 159, 5, 49, "Subsection"],
+Cell[27418, 626, 415, 7, 49, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[27870, 638, 95, 1, 49, "Subsection"],
+Cell[27968, 641, 1184, 18, 87, "Text"],
+Cell[29155, 661, 1894, 28, 201, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[31086, 694, 161, 2, 49, "Subsection"],
+Cell[31250, 698, 696, 12, 125, "Text"]
+}, Open  ]]
+}, Closed]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
