@@ -20,34 +20,53 @@ MFInitSinkWriter::usage="MFInitSinkWriter[filename, width, height] initialises t
 MFSendFrame::usage="MFSendFrame[data] sends data (an Image or image data array) to the output stream"
 
 
-MFFinaliseSink::usage="MFFinaliseSink[] is used to finish writing a video stream and close the output file.";
+MFFinaliseSink::usage="MFFinaliseSink[] is used to finish writing a video stream and close the output file."
 
 
-MFUnload::usage="MFUnload[] unloads the MathMF library. This is primarily for use when developing the library code and should not be needed in normal usage."
+MFUnload::usage="MFUnload[] unloads the MathMF library.
+This is primarily for use when developing the library code and should not be needed in normal usage."
 
 
-MFVideo::nofile="The input file does not exist";
+MFVideo::nofile="The input file does not exist."
 
 
-MFVideo::fileexists="The output file already exists";
+MFVideo::nosource="There are no frames to read. Use MFInitSourceReader to open an input stream."
 
 
-MFVideo::badtype="The output file must have a .wmv or .mp4 extension";
+MFVideo::fileexists="The output file already exists."
 
 
-MFVideo::odddims="The frame width and height must be even numbers";
+MFVideo::sinkopen="The currently open output file will be closed."
 
 
-MFVideo::baddata="The data must be an Image or a 2D or 3D numerical array";
+MFVideo::badtype="The output file must have a .wmv or .mp4 extension."
 
 
-MFVideo::baddims="The data dimensions are incorrect, or there is no output stream";
+MFVideo::odddims="The frame width and height must be even numbers."
 
 
-LibraryFunction::initsourcefail="Unable to initialise source reader. Possible reasons include:\nThe file is not a valid media file.\nThe file does not contain any video streams.\nThe Media Foundation platform cannot decode the stream.\n";
+MFVideo::nosink="There is no output stream to send frames to. Use MFInitSinkWriter to open an output file."
 
 
-LibraryFunction::finalisefail="The sink writer could not be finalised. Possible reasons include:\nThe sink writer was not initialised.\nNo frames were sent to the sink writer.\nThe bit rate was too low and no samples were added to the stream.";
+MFVideo::nosinkf="There is no output stream to finalise."
+
+
+MFVideo::baddata="The data must be an Image or a 2D or 3D numerical array."
+
+
+MFVideo::baddims="The data dimensions are incorrect."
+
+
+LibraryFunction::initsourcefail="Unable to initialise source reader. Possible reasons include:
+The file is not a valid media file.
+The file does not contain any video streams.
+The Media Foundation platform cannot decode the stream."
+
+
+LibraryFunction::finalisefail="The sink writer could not be finalised. Possible reasons include:
+The sink writer was not initialised.
+No frames were sent to the sink writer.
+The bit rate was too low and no samples were added to the stream."
 
 
 Begin["Private`"]
@@ -57,7 +76,7 @@ Begin["Private`"]
 (*Find or create the DLL*)
 
 
-MathMFlib=FindLibrary["MathMF"];
+MathMFlib=FindLibrary["MathMF"]
 
 
 If[MathMFlib===$Failed,
@@ -85,26 +104,30 @@ Print["MathMF.DLL successfully created at "<>MathMFlib]]]]
 (*Underlying LibraryFunction[] 's*)
 
 
-MFISR=LibraryFunctionLoad[MathMFlib,"InitSourceReader",{"UTF8String"},{Real,1}];
+MFISR=LibraryFunctionLoad[MathMFlib,"InitSourceReader",{"UTF8String"},{Real,1}]
 
 
-MFGF=LibraryFunctionLoad[MathMFlib,"GrabFrame",{},{Integer,3}];
+MFGF=LibraryFunctionLoad[MathMFlib,"GrabFrame",{},{Integer,3}]
 
 
-MFSourceTime=LibraryFunctionLoad[MathMFlib,"SourceTime",{},Real];
+MFSourceTime=LibraryFunctionLoad[MathMFlib,"SourceTime",{},Real]
 
 
-MFISW=LibraryFunctionLoad[MathMFlib,"InitSinkWriter",{"UTF8String",Integer,Integer,Integer,Real,Integer},"Void"];
+MFISW=LibraryFunctionLoad[MathMFlib,"InitSinkWriter",{"UTF8String",Integer,Integer,Integer,Real,Integer},"Void"]
 
 
-MFSF=LibraryFunctionLoad[MathMFlib,"SendFrame",{{Integer,3,"Constant"}},Integer];
+MFSF=LibraryFunctionLoad[MathMFlib,"SendFrame",{{Integer,3,"Constant"}},Integer]
 
 
-MFFS=LibraryFunctionLoad[MathMFlib,"FinaliseSink",{},"Void"];
+MFFS=LibraryFunctionLoad[MathMFlib,"FinaliseSink",{},"Void"]
 
 
 (* ::Subsection:: *)
 (*Create wrapper functions to check arguments and handle errors*)
+
+
+$sourceopen=False;
+$sinkopen=False;
 
 
 convertFromByteData[x_,"Byte"]:=x;
@@ -119,23 +142,28 @@ convertToByteData[x_List/;ArrayQ[x,2|3,NumericQ]]:=convertToByteData[Image[x]];
 convertToByteData[__]=$Failed;
 
 
-MFInitSourceReader[fn_String]:=Catch[
+MFInitSourceReader[fn_String]:=Catch[Module[{res},
 If[!FileExistsQ[fn],Message[MFVideo::nofile];Throw[{}]];
-MapAt[Round,Check[MFISR[fn],Throw[$Failed]],{{3},{4}}]]
+res=MapAt[Round,Check[MFISR[fn],Throw[$Failed]],{{3},{4}}];
+$sourceopen=True;
+res]]
 
 
 MFGrabFrame[s:("Byte"|"Real"|"ByteImage"|"RealImage")]:=
+If[$sourceopen,
 With[{m=LibraryFunction::endofstream},
-Catch[convertFromByteData[Quiet[Check[MFGF[],Throw[EndOfFile],{m}],{m}],s]]]
+Catch[convertFromByteData[Quiet[Check[MFGF[],$sourceopen=False;Throw[EndOfFile],{m}],{m}],s]]],
+Message[MFVideo::nosource];$Failed]
 
 
 MFGrabFrame[]:=MFGrabFrame["Real"]
 
 
-Options[MFInitSinkWriter]={"FrameRate"->29.97,"CompressionRatio"->100,"BitRate"->Automatic};
+Options[MFInitSinkWriter]={"FrameRate"->29.97,"CompressionRatio"->100,"BitRate"->Automatic}
 
 
 MFInitSinkWriter[fn_String,w_Integer,h_Integer,OptionsPattern[]]:=Catch[
+If[$sinkopen,Message[MFVideo::sinkopen];MFFinaliseSink[]];
 If[FileExistsQ[fn],Message[MFVideo::fileexists];Throw[$Failed]];
 If[OddQ[w]||OddQ[h],Message[MFVideo::odddims];Throw[$Failed]];
 $mfswd={h,w,3};
@@ -145,21 +173,22 @@ CR=OptionValue["CompressionRatio"];
 BR=OptionValue["BitRate"]/.Automatic->Round[24FR w h /(1000CR)];
 Which[
 StringMatchQ[fn,__~~".wmv"],
-$mfswf=Identity;MFISW[fn,1,w,h,FR,BR],
+$mfswf=Identity;MFISW[fn,1,w,h,FR,BR];$sinkopen=True;,
 StringMatchQ[fn,__~~".mp4"],
 (* MP4 writing requires the data upside down *)
-$mfswf=Reverse;MFISW[fn,2,w,h,FR,BR],
+$mfswf=Reverse;MFISW[fn,2,w,h,FR,BR];$sinkopen=True;,
 True,Message[MFVideo::badtype];$Failed]]]
 
 
 MFSendFrame[data_]:=Catch[
+If[!$sinkopen,Message[MFVideo::nosink];Throw[$Failed]];
 Module[{d=convertToByteData[data]},
 If[d===$Failed,Message[MFVideo::baddata];Throw[$Failed]];
 If[Dimensions[d]=!=$mfswd,Message[MFVideo::baddims];Throw[$Failed]];
 MFSF[$mfswf@d]]]
 
 
-MFFinaliseSink[]:=(MFFS[];$mfswd={0,0,0};)
+MFFinaliseSink[]:=If[!$sinkopen,Message[MFVideo::nosinkf],MFFS[];$sinkopen=False;]
 
 
 MFUnload[]:=LibraryUnload@MathMFlib
