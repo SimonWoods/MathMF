@@ -672,9 +672,9 @@ EXTERN_C DLLEXPORT int InitSourceReader(WolframLibraryData libData, mint Argc, M
 EXTERN_C DLLEXPORT int GrabFrame(WolframLibraryData libData, mint Argc, MArgument * Args, MArgument Res) {
 
 	int err = LIBRARY_NO_ERROR;
-	BYTE *pData;
 
-	// get a pointer to the byte buffer containing the frame:
+	// get a pointer to the byte buffer:
+	BYTE *pData;
 	hr = VR.getReadBuffer(&pData);
 
 	if (hr == MF_E_END_OF_STREAM)
@@ -689,38 +689,26 @@ EXTERN_C DLLEXPORT int GrabFrame(WolframLibraryData libData, mint Argc, MArgumen
 		return LIBRARY_FUNCTION_ERROR;
 	} 
 
+	// create the rank 3 MTensor
 	MTensor T0;
 	mint dims[3];
-
 	dims[0] = (mint) VR.m_imageheight;
 	dims[1] = (mint) VR.m_imagewidth;
 	dims[2] = 3;
-
-	// create the rank 3 MTensor
 	err = libData->MTensor_new(MType_Integer, 3, dims, &T0);
 
-	mint index[3];
-//	BYTE *pbbcopy = VR.m_pbytebuffer;
-	BYTE *pbbcopy = pData;
-	mint pixelvalue;
-
 	// fill the MTensor from the byte buffer
-	for (int i = 1; i <= dims[0]; i++) 
-	{
-		index[0] = i;
-		for (int j = 1; j <= dims[1]; j++) 
-		{
-			index[1] = j;
-			for (int k = 3; k >= 1 && !err; k--) // count backwards to convert BGR to RGB	
-			{		
-				index[2] = k;
-				pixelvalue = (mint) *pbbcopy++;
-				err = libData->MTensor_setInteger(T0, index, pixelvalue);
-			}
-			pbbcopy++; // skip the fourth byte (useless alpha channel)
-		}
-	}
+	mint *mtdata;
+    mtdata = libData->MTensor_getIntegerData(T0);
+    int npixels = VR.m_imageheight * VR.m_imagewidth;   
 
+    for (int i = 0; i < npixels; i++) {
+		// we read B, G, R, (A) bytes and put R, G, B into the pixel buffer
+		mtdata[3 * i    ] = (mint) pData[4 * i + 2]; // R
+        mtdata[3 * i + 1] = (mint) pData[4 * i + 1]; // G
+        mtdata[3 * i + 2] = (mint) pData[4 * i    ]; // B
+	}
+    
 	// unlock the buffer
 	hr = VR.releaseBuffer();
 	if (FAILED(hr))
@@ -729,6 +717,7 @@ EXTERN_C DLLEXPORT int GrabFrame(WolframLibraryData libData, mint Argc, MArgumen
 		return LIBRARY_FUNCTION_ERROR;
 	}
 
+	// return the MTensor to Mathematica
 	MArgument_setMTensor(Res, T0);
 	return err; 
 
@@ -788,20 +777,20 @@ EXTERN_C DLLEXPORT int InitSinkWriter(WolframLibraryData libData, mint Argc, MAr
 
 EXTERN_C DLLEXPORT int SendFrame(WolframLibraryData libData, mint Argc, MArgument * Args, MArgument Res) {
 
-	MTensor T0;
-	mint const *dims;
-	BYTE *pData = NULL;
-	
-	T0 = MArgument_getMTensor(Args[0]);
-	dims = libData->MTensor_getDimensions(T0);
+	MTensor T0 = MArgument_getMTensor(Args[0]);
+    mint len = libData->MTensor_getFlattenedLength(T0);
 
-	if(dims[0] != (mint)VW.m_height || dims[1] != (mint)VW.m_width || dims[2] != 3)
+	// check that we have the right amount of data
+	UINT32 expectedlength = VW.m_height * VW.m_width * 3;
+
+	if (len != (mint) expectedlength)
 	{
 		libData->Message("dimensionsfail");
 		return LIBRARY_FUNCTION_ERROR;
 	}
 
 	// get a buffer
+	BYTE *pData = NULL;
 	hr = VW.getWriteBuffer(&pData);
 	if (FAILED(hr))
 	{
@@ -810,28 +799,18 @@ EXTERN_C DLLEXPORT int SendFrame(WolframLibraryData libData, mint Argc, MArgumen
 	}
 
 	// fill the buffer
-
-	mint index[3];
-	BYTE *pbbcopy = pData;
-	mint pixelvalue;
-	int err = LIBRARY_NO_ERROR;
+	mint *mtdata;
+    int npixels = len / 3;
+    mtdata = libData->MTensor_getIntegerData(T0);
+               
+    for (int i = 0; i < npixels; i++) {
+		// we read R, G, B bytes and put B, G, R, A into the pixel buffer
+		pData[4 * i + 2] = (BYTE) mtdata[3 * i    ]; // R
+        pData[4 * i + 1] = (BYTE) mtdata[3 * i + 1]; // G
+        pData[4 * i    ] = (BYTE) mtdata[3 * i + 2]; // B
+        pData[4 * i + 3] = 0;						 // A
+	}             
 	
-	for (int i = 1; i <= dims[0]; i++) 
-	{
-		index[0] = i;
-		for (int j = 1; j <= dims[1]; j++) 
-		{
-			index[1] = j;
-			for (int k = 3; k >= 1 && !err; k--) // count backwards to convert RGB to BGR	
-			{		
-				index[2] = k;
-				err = libData->MTensor_getInteger(T0, index, &pixelvalue);
-				*pbbcopy++ = (BYTE) pixelvalue;
-			}
-			*pbbcopy++ = 0; // zero the fourth byte (useless alpha channel)
-		}
-	}
-
 	// write the sample
 	hr = VW.writeFrame(pData);
 	if (FAILED(hr))
@@ -840,6 +819,7 @@ EXTERN_C DLLEXPORT int SendFrame(WolframLibraryData libData, mint Argc, MArgumen
 		return LIBRARY_FUNCTION_ERROR;
 	}
 
+	// return the timestamp to Mathematica
 	MArgument_setInteger(Res, VW.m_rtStart);
 
 	return LIBRARY_NO_ERROR;
@@ -848,6 +828,7 @@ EXTERN_C DLLEXPORT int SendFrame(WolframLibraryData libData, mint Argc, MArgumen
 EXTERN_C DLLEXPORT int FinaliseSink(WolframLibraryData libData, mint Argc, MArgument * Args, MArgument Res) {
 
 	hr = VW.finalise();
+
 	if (FAILED(hr))
 	{
 		libData->Message("finalisefail");
